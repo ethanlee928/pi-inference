@@ -1,16 +1,15 @@
 import logging
-import cv2
-import numpy as np
-import gi
 import time
+
+import cv2
+import gi
+import numpy as np
 import supervision as sv
 
 gi.require_version("Gst", "1.0")
-from gi.repository import Gst, GObject
+from gi.repository import GObject, Gst
 
-logging.basicConfig(
-    level=logging.INFO, format="[%(levelname)s] %(asctime)s %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(asctime)s %(message)s")
 
 logger = logging.getLogger("GstSource")
 
@@ -101,9 +100,7 @@ class CameraCapture:
         capsfilter = make_element("capsfilter")
         sink = make_element("appsink")
         source.set_property("device", "/dev/video0")
-        caps = Gst.Caps.from_string(
-            "video/x-raw,format=RGB,width=1920,height=1080,framerate=10/1"
-        )
+        caps = Gst.Caps.from_string("video/x-raw,format=RGB,width=1920,height=1080,framerate=10/1")
         capsfilter.set_property("caps", caps)
         sink.set_property("emit-signals", True)
         sink.set_property("sync", False)
