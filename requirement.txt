@@ -1,0 +1,5 @@
+pycairo
+PyGObject
+supervision
+numpy
+opencv-python

@@ -1,4 +1,5 @@
 import logging
+import subprocess
 import time
 
 import cv2
@@ -33,6 +34,11 @@ def make_element(element_name, name=None):
         logger.error("Failed to create element %s", element_name)
         exit(-1)
     return element
+
+
+def get_v4l2_caps(device: str = "/dev/video0"):
+    output = subprocess.check_output(["v4l2-ctl", "-d", device, "--list-formats-ext"])
+    return output.decode().strip()
 
 
 class CameraCapture:
@@ -109,7 +115,7 @@ class CameraCapture:
         self.add_elements([source, decoder, converter, capsfilter, sink])
         self.link_elements([source, decoder, converter, capsfilter, sink])
 
-    def capture(self) -> np.ndarray:
+    def capture(self):
         if not self.start:
             self.start = True
             self.pipeline.set_state(Gst.State.PLAYING)
@@ -118,5 +124,7 @@ class CameraCapture:
 
 if __name__ == "__main__":
     c = CameraCapture()
+    caps = get_v4l2_caps()
+    logger.info("Video Caps: %s", caps)
     c.create()
     c.capture()
