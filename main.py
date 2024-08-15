@@ -1,6 +1,8 @@
 import logging
 import subprocess
+import threading
 import time
+from typing import Optional
 
 import cv2
 import gi
@@ -52,6 +54,8 @@ class CameraCapture:
 
         self.idx = 0
         self.last_update = time.time()
+        self.last_frame = None
+        self.frame_availbable = threading.Event()
 
     def add_elements(self, elements: list):
         for element in elements:
@@ -87,7 +91,8 @@ class CameraCapture:
 
         frame = np.ndarray((height, width, 3), buffer=map_info.data, dtype=np.uint8)
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        print(frame.shape)
+        self.last_frame = frame
+        self.frame_availbable.set()
 
         now = time.time()
         fps_monitor.tick()
@@ -115,16 +120,29 @@ class CameraCapture:
         self.add_elements([source, decoder, converter, capsfilter, sink])
         self.link_elements([source, decoder, converter, capsfilter, sink])
 
-    def capture(self):
+    def capture(self, timeout: float = 100) -> Optional[np.ndarray]:
         if not self.start:
-            self.start = True
+            logger.info("Creating pipeline")
+            self.create()
+            logger.info("Setting pipeline to PLAY")
             self.pipeline.set_state(Gst.State.PLAYING)
-            self.loop.run()
+            self.start = True
+
+        timeout_s = timeout / 1000
+        if self.frame_availbable.wait(timeout_s):
+            frame = self.last_frame
+            self.frame_availbable.clear()
+            return frame
+        logger.warning("Capture timeout (%s ms)", timeout)
 
 
 if __name__ == "__main__":
     c = CameraCapture()
     caps = get_v4l2_caps()
     logger.info("Video Caps: %s", caps)
-    c.create()
-    c.capture()
+    while True:
+        frame = c.capture(timeout=200)
+        if frame is not None:
+            print(frame.shape)
+        else:
+            logger.warning("Frame not ready...")
