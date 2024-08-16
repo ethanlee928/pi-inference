@@ -30,3 +30,15 @@ sudo apt-get install v4l-utils
 ```bash
 pip3 install -r requirements.txt
 ```
+
+## Development
+
+Install the package using pip
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip3 install --upgrade pip
+pip3 install -e ".[dev]"
+```
