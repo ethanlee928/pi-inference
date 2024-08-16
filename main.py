@@ -56,11 +56,11 @@ class CameraCapture:
         self.last_frame = None
         self.frame_availbable = threading.Event()
 
-    def add_elements(self, elements: list):
+    def add_elements(self, elements: list[Gst.Element]):
         for element in elements:
             self.pipeline.add(element)
 
-    def link_elements(self, elements: list):
+    def link_elements(self, elements: list[Gst.Element]):
         for i in range(len(elements) - 1):
             if not elements[i].link(elements[i + 1]):
                 logger.error("Failed to link %s to %s", elements[i], elements[i + 1])
