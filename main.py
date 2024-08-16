@@ -50,7 +50,6 @@ class CameraCapture:
         self.bus.add_signal_watch()
         self.bus.connect("message::eos", self.on_eos)
         self.start = False
-        self.loop = GObject.MainLoop()
 
         self.idx = 0
         self.last_update = time.time()
@@ -71,7 +70,6 @@ class CameraCapture:
 
     def on_eos(self, bus, msg):
         logger.warning("End-Of-Stream reached")
-        self.loop.quit()
         self.pipeline.set_state(Gst.State.NULL)
 
     def on_new_sample(self, sink, data):
@@ -134,6 +132,7 @@ class CameraCapture:
             self.frame_availbable.clear()
             return frame
         logger.warning("Capture timeout (%s ms)", timeout)
+        return None
 
 
 if __name__ == "__main__":
