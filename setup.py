@@ -26,6 +26,7 @@ setuptools.setup(
         "supervision",
         "numpy",
         "opencv-python",
+        "typing-extensions",
     ],
     packages=find_packages(exclude=("tests",)),
     package_dir={"": "."},
