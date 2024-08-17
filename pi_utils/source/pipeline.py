@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 Gst.init(None)
 
+
 class Pipeline(ABC):
 
     def __init__(self) -> None:
@@ -28,7 +29,7 @@ class Pipeline(ABC):
         self.frame_available = threading.Event()
 
     @abstractmethod
-    def create(self, **kwargs):
+    def create(self, input, **kwargs):
         pass
 
     def on_eos(self, bus, msg):

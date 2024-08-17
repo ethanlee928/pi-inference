@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 Gst.init(None)
 
+
 def is_v4l2(input: str):
     v4l2_pattern = r"^(/dev/video\d+|\d+)$"
     return re.match(v4l2_pattern, input) is not None
