@@ -2,7 +2,9 @@ import gi
 
 # Import necessary GStreamer modules
 gi.require_version("Gst", "1.0")
-from gi.repository import GstRtspServer
+from gi.repository import GLib, Gst, GstRtspServer
+
+Gst.init(None)
 
 
 def launch_rtsp_server(
@@ -39,3 +41,10 @@ def launch_rtsp_server(
     mount_points = server.get_mount_points()
     mount_points.add_factory(f"/{endpoint}", factory)
     server.attach(None)
+
+
+if __name__ == "__main__":
+    # NOTE: Need to use GLib.MainLoop() for rtsp server to work.
+    launch_rtsp_server()
+    loop = GLib.MainLoop()
+    loop.run()
