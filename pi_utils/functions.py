@@ -2,13 +2,13 @@ import logging
 import re
 
 import gi
-from gi.repository import Gst
 
 gi.require_version("Gst", "1.0")
+from gi.repository import Gst
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
-
+Gst.init(None)
 
 def is_v4l2(input: str):
     v4l2_pattern = r"^(/dev/video\d+|\d+)$"

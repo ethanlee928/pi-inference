@@ -1,11 +1,8 @@
 import logging
 
-import gi
-
 from .. import functions
 from .pipeline import Pipeline, V4l2Pipeline
 
-gi.require_version("Gst", "1.0")
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 

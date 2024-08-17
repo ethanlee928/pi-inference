@@ -5,18 +5,18 @@ from abc import ABC, abstractmethod
 import cv2
 import gi
 import numpy as np
-from gi.repository import Gst
 from typing_extensions import override
+
+gi.require_version("Gst", "1.0")
+from gi.repository import Gst
 
 from ..functions import add_elements, link_elements, make_element
 
-gi.require_version("Gst", "1.0")
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
-
+Gst.init(None)
 
 class Pipeline(ABC):
-    Gst.init(None)
 
     def __init__(self) -> None:
         self.pipeline = Gst.Pipeline.new("video-pipeline")
