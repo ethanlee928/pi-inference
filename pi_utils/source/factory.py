@@ -1,7 +1,7 @@
 import logging
 
 from .. import functions
-from .pipeline import Pipeline, V4l2Pipeline
+from .pipeline import AppSinkPipeline, V4l2Pipeline
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -9,7 +9,7 @@ logger.addHandler(logging.NullHandler())
 
 class PipelineFactory:
     @classmethod
-    def make(cls, input: str, **kwargs) -> Pipeline:
+    def make(cls, input: str, **kwargs) -> AppSinkPipeline:
         if functions.is_v4l2(input):
             logger.info("Making V4L2 pipeline")
             pipeline = V4l2Pipeline()

@@ -1,6 +1,5 @@
 import logging
 import threading
-from abc import ABC, abstractmethod
 
 import cv2
 import gi
@@ -10,6 +9,7 @@ from typing_extensions import override
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst
 
+from ..common import Pipeline
 from ..functions import add_elements, link_elements, make_element
 
 logger = logging.getLogger(__name__)
@@ -17,28 +17,12 @@ logger.addHandler(logging.NullHandler())
 Gst.init(None)
 
 
-class Pipeline(ABC):
+class AppSinkPipeline(Pipeline):
 
-    def __init__(self) -> None:
-        self.pipeline = Gst.Pipeline.new("video-pipeline")
-        self.bus = self.pipeline.get_bus()
-        self.bus.add_signal_watch()
-        self.bus.connect("message::eos", self.on_eos)
-
+    def __init__(self):
+        super().__init__(pipeline_name=AppSinkPipeline.__name__)
         self.last_frame = None
         self.frame_available = threading.Event()
-
-    @abstractmethod
-    def create(self, input, **kwargs):
-        pass
-
-    def on_eos(self, bus, msg):
-        logger.warning("End-Of-Stream reached")
-        self.set_null()
-
-    def set_null(self):
-        logger.warning("Set pipeline NULL")
-        self.pipeline.set_state(Gst.State.NULL)
 
     def on_rgb_sample(self, sink, data):
         sample = sink.emit("pull-sample")
@@ -68,7 +52,7 @@ class Pipeline(ABC):
         self.pipeline.set_state(Gst.State.PLAYING)
 
 
-class V4l2Pipeline(Pipeline):
+class V4l2Pipeline(AppSinkPipeline):
     @override
     def create(self, input, **kwargs):
         elements = []

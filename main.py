@@ -2,12 +2,11 @@ import logging
 import time
 from threading import Thread
 
-import cv2
 import gi
 import supervision as sv
 
 gi.require_version("Gst", "1.0")
-from gi.repository import GLib, Gst, GstRtspServer
+from gi.repository import GLib, Gst
 
 Gst.init(None)
 
@@ -17,8 +16,8 @@ from rtsp_server import launch_rtsp_server
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(name)s %(levelname)s: %(message)s")
 
-FRAME_WIDTH = 1920
-FRAME_HEIGHT = 1080
+FRAME_WIDTH = 1280
+FRAME_HEIGHT = 720
 FRAMERATE = 10
 
 
