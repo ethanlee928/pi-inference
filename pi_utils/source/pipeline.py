@@ -47,10 +47,6 @@ class AppSinkPipeline(Pipeline):
         buf.unmap(map_info)
         return Gst.FlowReturn.OK
 
-    def start(self):
-        logger.info("Setting pipeline to PLAYING")
-        self.pipeline.set_state(Gst.State.PLAYING)
-
 
 class V4l2Pipeline(AppSinkPipeline):
     @override
