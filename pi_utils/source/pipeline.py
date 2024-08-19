@@ -48,6 +48,35 @@ class AppSinkPipeline(Pipeline):
         return Gst.FlowReturn.OK
 
 
+class UriSrcPipeline(AppSinkPipeline):
+    @staticmethod
+    def pad_added_handler(decodebin, pad, converter):
+        if pad.link(converter.get_static_pad("sink")) != Gst.PadLinkReturn.OK:
+            logger.error("Failed to link decodebin to converter")
+            return Gst.FlowReturn.ERROR
+
+    @override
+    def create(self, input, **kwargs):
+        uridecodebin = make_element("uridecodebin")
+        converter = make_element("videoconvert")
+        capsfilter = make_element("capsfilter")
+        sink = make_element("appsink")
+        sink.set_property("emit-signals", True)
+        sink.set_property("sync", kwargs.get("sync", True))
+        sink.connect("new-sample", self.on_rgb_sample, None)
+
+        uridecodebin.set_property("uri", input)
+        uridecodebin.connect("pad-added", self.pad_added_handler, converter)
+        caps = Gst.Caps.from_string(
+            "video/x-raw,format=RGB,width={},height={},framerate={}/1".format(
+                kwargs["width"], kwargs["height"], kwargs["framerate"]
+            )
+        )
+        capsfilter.set_property("caps", caps)
+        add_elements(self.pipeline, [uridecodebin, converter, capsfilter, sink])
+        link_elements([converter, capsfilter, sink])
+
+
 class V4l2Pipeline(AppSinkPipeline):
     @override
     def create(self, input, **kwargs):
