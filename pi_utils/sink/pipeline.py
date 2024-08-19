@@ -34,6 +34,25 @@ class AppSrcPipeline(Pipeline):
             logger.critical("Failed to push buffer: %s", result)
 
 
+class FileSinkPipeline(AppSrcPipeline):
+    @override
+    def create(self, output: str, **kwargs):
+        filepath = output.replace("file://", "")
+        width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
+        self.appsrc.set_property(
+            "caps",
+            Gst.Caps.from_string(f"video/x-raw,format=BGR,width={width},height={height},framerate={framerate}/1"),
+        )
+        videoconvert = f.make_element("videoconvert")
+        encoder = f.make_element("x264enc")
+        mux = f.make_element("matroskamux")
+        filesink = f.make_element("filesink")
+        filesink.set_property("location", filepath)
+        f.add_elements(self.pipeline, [self.appsrc, videoconvert, encoder, mux, filesink])
+        f.link_elements([self.appsrc, videoconvert, encoder, mux, filesink])
+        logger.info("Saving video @ %s", filepath)
+
+
 class TcpServerSinkPipeline(AppSrcPipeline):
     @override
     def create(self, output: str, **kwargs):

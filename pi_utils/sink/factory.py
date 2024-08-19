@@ -1,6 +1,11 @@
 import logging
 
-from .pipeline import AppSrcPipeline, RtspSinkPipeline, TcpServerSinkPipeline
+from .pipeline import (
+    AppSrcPipeline,
+    FileSinkPipeline,
+    RtspSinkPipeline,
+    TcpServerSinkPipeline,
+)
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -17,6 +22,11 @@ class PipelineFactory:
         if output.startswith("tcp://"):
             logger.info("Creating TCP Server Sink Pipeline")
             pipeline = TcpServerSinkPipeline()
+            pipeline.create(output, **kwargs)
+            return pipeline
+        if output.startswith("file://"):
+            logger.info("Creating File Sink Pipeline")
+            pipeline = FileSinkPipeline()
             pipeline.create(output, **kwargs)
             return pipeline
         raise NotImplementedError("Output %s not supported", output)
