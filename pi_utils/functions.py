@@ -48,6 +48,24 @@ def extract_rtsp(input: str) -> tuple[str, str, str]:
     return ip, port, base
 
 
+def extract_tcp(input: str):
+    """
+    Extracts the IP address and port from a TCP URL.
+
+    Args:
+        input (str): The TCP URL string.
+
+    Returns:
+        tuple[str, str]: A tuple containing the extracted IP address and port.
+    """
+    if not input.startswith("tcp://"):
+        raise ValueError("Input string is not a TCP URL.")
+
+    ip = re.search(r"//([^:]+)", input).group(1)
+    port = re.search(r":(\d+)", input).group(1)
+    return ip, port
+
+
 def add_elements(pipeline: Gst.Pipeline, elements: list[Gst.Element]):
     """
     Adds the given elements to the pipeline.

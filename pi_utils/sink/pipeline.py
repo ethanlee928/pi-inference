@@ -34,6 +34,25 @@ class AppSrcPipeline(Pipeline):
             logger.critical("Failed to push buffer: %s", result)
 
 
+class TcpServerSinkPipeline(AppSrcPipeline):
+    @override
+    def create(self, output: str, **kwargs):
+        host, port = f.extract_tcp(output)
+        width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
+        self.appsrc.set_property(
+            "caps",
+            Gst.Caps.from_string(f"video/x-raw,format=BGR,width={width},height={height},framerate={framerate}/1"),
+        )
+        encoder = f.make_element("jpegenc")
+        multipartmux = f.make_element("multipartmux")
+        tcpserversink = f.make_element("tcpserversink")
+        tcpserversink.set_property("host", host)
+        tcpserversink.set_property("port", int(port))
+        f.add_elements(self.pipeline, [self.appsrc, encoder, multipartmux, tcpserversink])
+        f.link_elements([self.appsrc, encoder, multipartmux, tcpserversink])
+        logger.info("View TCP stream @ tcp://%s:%s", host, port)
+
+
 class RtspSinkPipeline(AppSrcPipeline):
     UDP_HOST = "0.0.0.0"
     UDP_PORT = 5000
