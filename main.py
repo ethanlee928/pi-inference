@@ -9,6 +9,7 @@ from gi.repository import Gst
 
 Gst.init(None)
 
+from pi_utils import functions as f
 from pi_utils.sink import VideoOutput
 from pi_utils.source import VideoSource
 
@@ -44,6 +45,7 @@ if __name__ == "__main__":
             now = time.time()
             if frame is not None:
                 fps_monitor.tick()
+                frame = f.draw_clock(frame)
                 video_output.render(frame)
                 if now - last_update > 1:
                     last_update = now

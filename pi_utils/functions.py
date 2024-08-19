@@ -1,7 +1,11 @@
 import logging
 import re
+from datetime import datetime
+from typing import Optional
 
 import gi
+import numpy as np
+import supervision as sv
 
 gi.require_version("Gst", "1.0")
 from gi.repository import GLib, Gst, GstRtspServer
@@ -140,3 +144,19 @@ def launch_rtsp_server(
     loop = GLib.MainLoop()
     loop.run()
     logger.warning("Exit RTSP Server MainLoop ...")
+
+
+def draw_clock(frame: np.ndarray, anchor_x: Optional[int] = None, anchor_y: Optional[int] = None):
+    anchor_x = anchor_x or 100
+    anchor_y = anchor_y or 20
+
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    text_anchor = sv.Point(anchor_x, anchor_y)
+    frame = sv.draw_text(
+        scene=frame,
+        text=current_time,
+        text_anchor=text_anchor,
+        text_color=sv.Color.WHITE,
+        background_color=sv.Color.BLACK,
+    )
+    return frame
