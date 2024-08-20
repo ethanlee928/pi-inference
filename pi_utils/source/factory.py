@@ -10,16 +10,23 @@ logger.addHandler(logging.NullHandler())
 class PipelineFactory:
     @classmethod
     def make(cls, input: str, **kwargs) -> AppSinkPipeline:
+        pipeline_classes = {
+            "v4l2": V4l2Pipeline,
+            "uri": UriSrcPipeline,
+        }
+
         if functions.is_v4l2(input):
-            logger.info("Making V4L2 pipeline")
-            pipeline = V4l2Pipeline()
-            pipeline.create(input, **kwargs)
-            logger.info("Making V4L2 pipeline DONE")
-            return pipeline
-        if input.startswith("rtsp://") or input.startswith("file://"):
-            logger.info("Making URI pipeline")
-            pipeline = UriSrcPipeline()
-            pipeline.create(input, **kwargs)
-            logger.info("Making URI pipeline DONE")
-            return pipeline
-        raise NotImplementedError("Input %s not supported", input)
+            return cls._create_pipeline(pipeline_classes["v4l2"], input, **kwargs)
+
+        if input.startswith(("rtsp://", "file://")):
+            return cls._create_pipeline(pipeline_classes["uri"], input, **kwargs)
+
+        raise NotImplementedError(f"Input {input} not supported")
+
+    @classmethod
+    def _create_pipeline(cls, pipeline_class, input: str, **kwargs) -> AppSinkPipeline:
+        logger.info("Making %s pipeline", pipeline_class.__name__)
+        pipeline = pipeline_class()
+        pipeline.create(input, **kwargs)
+        logger.info("Making %s pipeline DONE", pipeline_class.__name__)
+        return pipeline

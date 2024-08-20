@@ -36,8 +36,8 @@ class AppSrcPipeline(Pipeline):
 
 class FileSinkPipeline(AppSrcPipeline):
     @override
-    def create(self, output: str, **kwargs):
-        filepath = output.replace("file://", "")
+    def create(self, resource_uri: str, **kwargs):
+        filepath = resource_uri.replace("file://", "")
         width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
         self.appsrc.set_property(
             "caps",

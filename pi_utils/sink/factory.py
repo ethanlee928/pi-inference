@@ -1,4 +1,5 @@
 import logging
+from typing import Dict, Type
 
 from .pipeline import (
     AppSrcPipeline,
@@ -15,24 +16,18 @@ logger.addHandler(logging.NullHandler())
 class PipelineFactory:
     @classmethod
     def make(cls, output: str, **kwargs) -> AppSrcPipeline:
-        if output.startswith("rtsp://"):
-            logger.info("Creating RTSP Sink Pipeline")
-            pipeline = RtspSinkPipeline()
-            pipeline.create(output, **kwargs)
-            return pipeline
-        if output.startswith("tcp://"):
-            logger.info("Creating TCP Server Sink Pipeline")
-            pipeline = TcpServerSinkPipeline()
-            pipeline.create(output, **kwargs)
-            return pipeline
-        if output.startswith("file://"):
-            logger.info("Creating File Sink Pipeline")
-            pipeline = FileSinkPipeline()
-            pipeline.create(output, **kwargs)
-            return pipeline
-        if output.startswith("display://"):
-            logger.info("Creating Display Sink Pipeline")
-            pipeline = DisplaySinkPipeline()
-            pipeline.create(output, **kwargs)
-            return pipeline
-        raise NotImplementedError("Output %s not supported" % output)
+        pipeline_classes: Dict[str, Type[AppSrcPipeline]] = {
+            "rtsp://": RtspSinkPipeline,
+            "tcp://": TcpServerSinkPipeline,
+            "file://": FileSinkPipeline,
+            "display://": DisplaySinkPipeline,
+        }
+
+        for prefix, pipeline_class in pipeline_classes.items():
+            if output.startswith(prefix):
+                logger.info("Creating %s Pipeline", pipeline_class.__name__)
+                pipeline = pipeline_class()
+                pipeline.create(output, **kwargs)
+                return pipeline
+
+        raise NotImplementedError(f"Output {output} not supported")
