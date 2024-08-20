@@ -9,9 +9,8 @@ from gi.repository import Gst
 
 Gst.init(None)
 
+from pi_utils import VideoOutput, VideoSource
 from pi_utils import functions as f
-from pi_utils.sink import VideoOutput
-from pi_utils.source import VideoSource
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s: %(message)s")
 
