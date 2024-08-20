@@ -55,8 +55,8 @@ class FileSinkPipeline(AppSrcPipeline):
 
 class TcpServerSinkPipeline(AppSrcPipeline):
     @override
-    def create(self, output: str, **kwargs):
-        host, port = f.extract_tcp(output)
+    def create(self, resource_uri: str, **kwargs):
+        host, port = f.extract_tcp(resource_uri)
         width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
         self.appsrc.set_property(
             "caps",
@@ -78,8 +78,8 @@ class RtspSinkPipeline(AppSrcPipeline):
     UDP_PAYLOAD = 96
 
     @override
-    def create(self, output: str, **kwargs):
-        _, port, base = f.extract_rtsp(output)
+    def create(self, resource_uri: str, **kwargs):
+        _, port, base = f.extract_rtsp(resource_uri)
         width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
         self.appsrc.set_property(
             "caps",
@@ -112,7 +112,7 @@ class RtspSinkPipeline(AppSrcPipeline):
 
 class DisplaySinkPipeline(AppSrcPipeline):
     @override
-    def create(self, _: str, **kwargs):
+    def create(self, resource_uri: str, **kwargs):
         width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
         self.appsrc.set_property(
             "caps",

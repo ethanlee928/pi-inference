@@ -56,7 +56,7 @@ class UriSrcPipeline(AppSinkPipeline):
             return Gst.FlowReturn.ERROR
 
     @override
-    def create(self, input, **kwargs):
+    def create(self, resource_uri: str, **kwargs):
         uridecodebin = make_element("uridecodebin")
         converter = make_element("videoconvert")
         capsfilter = make_element("capsfilter")
@@ -65,7 +65,7 @@ class UriSrcPipeline(AppSinkPipeline):
         sink.set_property("sync", kwargs.get("sync", True))
         sink.connect("new-sample", self.on_rgb_sample, None)
 
-        uridecodebin.set_property("uri", input)
+        uridecodebin.set_property("uri", resource_uri)
         uridecodebin.connect("pad-added", self.pad_added_handler, converter)
         caps = Gst.Caps.from_string(
             "video/x-raw,format=RGB,width={},height={},framerate={}/1".format(
@@ -79,7 +79,7 @@ class UriSrcPipeline(AppSinkPipeline):
 
 class V4l2Pipeline(AppSinkPipeline):
     @override
-    def create(self, input, **kwargs):
+    def create(self, resource_uri: str, **kwargs):
         elements = []
         source = make_element("v4l2src")
         elements.append(source)
@@ -92,7 +92,7 @@ class V4l2Pipeline(AppSinkPipeline):
         converter = make_element("videoconvert")
         capsfilter = make_element("capsfilter")
         sink = make_element("appsink")
-        source.set_property("device", input)
+        source.set_property("device", resource_uri)
         caps = Gst.Caps.from_string(
             "video/x-raw,format=RGB,width={},height={},framerate={}/1".format(
                 kwargs["width"], kwargs["height"], kwargs["framerate"]

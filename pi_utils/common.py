@@ -21,7 +21,7 @@ class Pipeline:
         self.bus.connect("message::eos", self.on_eos)
 
     @abstractmethod
-    def create(self, *args, **kwargs):
+    def create(self, resource_uri: str, **kwargs):
         pass
 
     def on_eos(self, bus, msg):
