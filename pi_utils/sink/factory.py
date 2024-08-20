@@ -2,6 +2,7 @@ import logging
 
 from .pipeline import (
     AppSrcPipeline,
+    DisplaySinkPipeline,
     FileSinkPipeline,
     RtspSinkPipeline,
     TcpServerSinkPipeline,
@@ -29,4 +30,9 @@ class PipelineFactory:
             pipeline = FileSinkPipeline()
             pipeline.create(output, **kwargs)
             return pipeline
-        raise NotImplementedError("Output %s not supported", output)
+        if output.startswith("display://"):
+            logger.info("Creating Display Sink Pipeline")
+            pipeline = DisplaySinkPipeline()
+            pipeline.create(output, **kwargs)
+            return pipeline
+        raise NotImplementedError("Output %s not supported" % output)

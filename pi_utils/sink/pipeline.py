@@ -108,3 +108,17 @@ class RtspSinkPipeline(AppSrcPipeline):
             daemon=True,
         ).start()
         logger.info("RTSP server started at rtsp://@:%s/%s", port, base)
+
+
+class DisplaySinkPipeline(AppSrcPipeline):
+    @override
+    def create(self, _: str, **kwargs):
+        width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
+        self.appsrc.set_property(
+            "caps",
+            Gst.Caps.from_string(f"video/x-raw,format=BGR,width={width},height={height},framerate={framerate}/1"),
+        )
+        videoconvert = f.make_element("videoconvert")
+        autovideosink = f.make_element("autovideosink")
+        f.add_elements(self.pipeline, [self.appsrc, videoconvert, autovideosink])
+        f.link_elements([self.appsrc, videoconvert, autovideosink])
