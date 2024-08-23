@@ -36,9 +36,11 @@ class AppSrcPipeline(Pipeline):
 
 class FileSinkPipeline(AppSrcPipeline):
     @override
-    def create(self, resource_uri: str, **kwargs):
+    def create(self, resource_uri: str, options: dict):
         filepath = resource_uri.replace("file://", "")
-        width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
+        width = options.get("output-width") or options.get("width") or 1280
+        height = options.get("output-height") or options.get("height") or 720
+        framerate = options.get("framerate", 30)
         self.appsrc.set_property(
             "caps",
             Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1"),
@@ -55,9 +57,11 @@ class FileSinkPipeline(AppSrcPipeline):
 
 class TcpServerSinkPipeline(AppSrcPipeline):
     @override
-    def create(self, resource_uri: str, **kwargs):
+    def create(self, resource_uri: str, options: dict):
         host, port = f.extract_tcp(resource_uri)
-        width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
+        width = options.get("output-width") or options.get("width") or 1280
+        height = options.get("output-height") or options.get("height") or 720
+        framerate = options.get("framerate", 30)
         self.appsrc.set_property(
             "caps",
             Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1"),
@@ -78,9 +82,11 @@ class RtspSinkPipeline(AppSrcPipeline):
     UDP_PAYLOAD = 96
 
     @override
-    def create(self, resource_uri: str, **kwargs):
+    def create(self, resource_uri: str, options: dict):
         _, port, base = f.extract_rtsp(resource_uri)
-        width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
+        width = options.get("output-width") or options.get("width") or 1280
+        height = options.get("output-height") or options.get("height") or 720
+        framerate = options.get("framerate", 30)
         self.appsrc.set_property(
             "caps",
             Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1"),
@@ -112,8 +118,10 @@ class RtspSinkPipeline(AppSrcPipeline):
 
 class DisplaySinkPipeline(AppSrcPipeline):
     @override
-    def create(self, resource_uri: str, **kwargs):
-        width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
+    def create(self, resource_uri: str, options: dict):
+        width = options.get("output-width") or options.get("width") or 1280
+        height = options.get("output-height") or options.get("height") or 720
+        framerate = options.get("framerate", 30)
         self.appsrc.set_property(
             "caps",
             Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1"),

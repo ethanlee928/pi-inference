@@ -9,10 +9,10 @@ logger.addHandler(logging.NullHandler())
 
 
 class VideoOutput:
-    def __init__(self, output: str, **kwargs):
+    def __init__(self, output: str, options: dict):
         self.output = output
         self.initialized = False
-        self.pipeline = PipelineFactory.make(output, **kwargs)
+        self.pipeline = PipelineFactory.make(output, options)
 
     def on_terminate(self):
         self.pipeline.set_null()

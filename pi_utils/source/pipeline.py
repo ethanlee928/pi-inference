@@ -54,22 +54,21 @@ class UriSrcPipeline(AppSinkPipeline):
             return Gst.FlowReturn.ERROR
 
     @override
-    def create(self, resource_uri: str, **kwargs):
+    def create(self, resource_uri: str, options: dict):
+        width = options.get("input-width") or options.get("width") or 1280
+        height = options.get("input-height") or options.get("height") or 720
+        framerate = options.get("framerate", 30)
         uridecodebin = make_element("uridecodebin")
         converter = make_element("videoconvert")
         capsfilter = make_element("capsfilter")
         sink = make_element("appsink")
         sink.set_property("emit-signals", True)
-        sink.set_property("sync", kwargs.get("sync", True))
+        sink.set_property("sync", options.get("sync", True))
         sink.connect("new-sample", self.on_rgb_sample, None)
 
         uridecodebin.set_property("uri", resource_uri)
         uridecodebin.connect("pad-added", self.pad_added_handler, converter)
-        caps = Gst.Caps.from_string(
-            "video/x-raw,format=RGB,width={},height={},framerate={}/1".format(
-                kwargs["width"], kwargs["height"], kwargs["framerate"]
-            )
-        )
+        caps = Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1")
         capsfilter.set_property("caps", caps)
         add_elements(self.pipeline, [uridecodebin, converter, capsfilter, sink])
         link_elements([converter, capsfilter, sink])
@@ -77,11 +76,14 @@ class UriSrcPipeline(AppSinkPipeline):
 
 class V4l2Pipeline(AppSinkPipeline):
     @override
-    def create(self, resource_uri: str, **kwargs):
+    def create(self, resource_uri: str, options: dict):
         elements = []
+        width = options.get("input-width") or options.get("width") or 1280
+        height = options.get("input-height") or options.get("height") or 720
+        framerate = options.get("framerate", 30)
         source = make_element("v4l2src")
         elements.append(source)
-        if kwargs.get("codec") is not None:
+        if options.get("codec") is not None:
             logger.info("Using MJPG")
             decoder = make_element("jpegdec")
             elements.append(decoder)
@@ -91,11 +93,7 @@ class V4l2Pipeline(AppSinkPipeline):
         capsfilter = make_element("capsfilter")
         sink = make_element("appsink")
         source.set_property("device", resource_uri)
-        caps = Gst.Caps.from_string(
-            "video/x-raw,format=RGB,width={},height={},framerate={}/1".format(
-                kwargs["width"], kwargs["height"], kwargs["framerate"]
-            )
-        )
+        caps = Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1")
         capsfilter.set_property("caps", caps)
         sink.set_property("emit-signals", True)
         sink.set_property("sync", False)
