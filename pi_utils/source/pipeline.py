@@ -1,7 +1,6 @@
 import logging
 import threading
 
-import cv2
 import gi
 import numpy as np
 from typing_extensions import override
@@ -39,8 +38,7 @@ class AppSinkPipeline(Pipeline):
         if not success:
             return Gst.FlowReturn.ERROR
 
-        frame = np.ndarray((height, width, 3), buffer=map_info.data, dtype=np.uint8)
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        frame = np.ndarray((height, width, 3), buffer=map_info.data, dtype=np.uint8).copy()
         self.last_frame = frame
         self.frame_available.set()
 

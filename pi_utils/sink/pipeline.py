@@ -41,7 +41,7 @@ class FileSinkPipeline(AppSrcPipeline):
         width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
         self.appsrc.set_property(
             "caps",
-            Gst.Caps.from_string(f"video/x-raw,format=BGR,width={width},height={height},framerate={framerate}/1"),
+            Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1"),
         )
         videoconvert = f.make_element("videoconvert")
         encoder = f.make_element("x264enc")
@@ -60,7 +60,7 @@ class TcpServerSinkPipeline(AppSrcPipeline):
         width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
         self.appsrc.set_property(
             "caps",
-            Gst.Caps.from_string(f"video/x-raw,format=BGR,width={width},height={height},framerate={framerate}/1"),
+            Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1"),
         )
         encoder = f.make_element("jpegenc")
         multipartmux = f.make_element("multipartmux")
@@ -83,7 +83,7 @@ class RtspSinkPipeline(AppSrcPipeline):
         width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
         self.appsrc.set_property(
             "caps",
-            Gst.Caps.from_string(f"video/x-raw,format=BGR,width={width},height={height},framerate={framerate}/1"),
+            Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1"),
         )
         videoconvert = f.make_element("videoconvert")
         encoder = f.make_element("x264enc")
@@ -116,7 +116,7 @@ class DisplaySinkPipeline(AppSrcPipeline):
         width, height, framerate = kwargs["width"], kwargs["height"], kwargs["framerate"]
         self.appsrc.set_property(
             "caps",
-            Gst.Caps.from_string(f"video/x-raw,format=BGR,width={width},height={height},framerate={framerate}/1"),
+            Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1"),
         )
         videoconvert = f.make_element("videoconvert")
         autovideosink = f.make_element("autovideosink")

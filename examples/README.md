@@ -29,3 +29,11 @@ python3 video-viewer.py /dev/video0 display://0
 ## RTSP
 
 ## TCP
+
+## Improvements To Do
+
+### 1. Writable Buffer
+
+- Now every frame is copied from the buffer in `appsink` because the buffer is not writable
+- Currently the Python Gst library haven't supported make buffer writable [(Gst.Buffer API)](https://lazka.github.io/pgi-docs/Gst-1.0/classes/Buffer.html)
+- [Workaround by jackersson](https://github.com/jackersson/gst-python-hacks/blob/master/how_to_make_gst_buffer_writable.ipynb)
