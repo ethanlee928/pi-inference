@@ -1,12 +1,13 @@
 import logging
 import re
+import time
+from collections import deque
 from datetime import datetime
 from typing import Optional
 
-import gi
 import cv2
+import gi
 import numpy as np
-import supervision as sv
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GstRtspServer", "1.0")
@@ -178,7 +179,7 @@ def draw_clock(frame: np.ndarray, anchor_x: Optional[int] = None, anchor_y: Opti
 
     anchor_x = anchor_x or 50 + padding
     anchor_y = anchor_y or 50 + padding
-    
+
     top = max(0, anchor_y - text_size[1] - padding)
     bottom = min(height, anchor_y + padding)
     left = max(0, anchor_x - padding)
@@ -192,3 +193,55 @@ def draw_clock(frame: np.ndarray, anchor_x: Optional[int] = None, anchor_y: Opti
 
     cv2.putText(frame, current_time, (anchor_x, anchor_y), font, font_scale, (255, 255, 255), font_thickness)
     return frame
+
+
+class FPSMonitor:
+    """
+    A class for monitoring frames per second (FPS) to benchmark latency.
+    """
+
+    def __init__(self, sample_size: int = 30):
+        """
+        Args:
+            sample_size (int): The maximum number of observations for latency
+                benchmarking.
+
+        Examples:
+            ```python
+            import supervision as sv
+
+            frames_generator = sv.get_video_frames_generator(source_path=<SOURCE_FILE_PATH>)
+            fps_monitor = sv.FPSMonitor()
+
+            for frame in frames_generator:
+                # your processing code here
+                fps_monitor.tick()
+                fps = fps_monitor.fps
+            ```
+        """
+        self.all_timestamps = deque(maxlen=sample_size)
+
+    @property
+    def fps(self) -> float:
+        """
+        Computes and returns the average FPS based on the stored time stamps.
+
+        Returns:
+            float: The average FPS. Returns 0.0 if no time stamps are stored.
+        """
+        if not self.all_timestamps:
+            return 0.0
+        taken_time = self.all_timestamps[-1] - self.all_timestamps[0]
+        return (len(self.all_timestamps)) / taken_time if taken_time != 0 else 0.0
+
+    def tick(self) -> None:
+        """
+        Adds a new time stamp to the deque for FPS calculation.
+        """
+        self.all_timestamps.append(time.monotonic())
+
+    def reset(self) -> None:
+        """
+        Clears all the time stamps from the deque.
+        """
+        self.all_timestamps.clear()
