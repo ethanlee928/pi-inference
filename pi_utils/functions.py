@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Optional
 
 import gi
+import cv2
 import numpy as np
 import supervision as sv
 
@@ -166,16 +167,28 @@ def launch_rtsp_server(
 
 
 def draw_clock(frame: np.ndarray, anchor_x: Optional[int] = None, anchor_y: Optional[int] = None):
-    anchor_x = anchor_x or 100
-    anchor_y = anchor_y or 20
+    width, height = frame.shape[1], frame.shape[0]
+    current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    text_anchor = sv.Point(anchor_x, anchor_y)
-    frame = sv.draw_text(
-        scene=frame,
-        text=current_time,
-        text_anchor=text_anchor,
-        text_color=sv.Color.WHITE,
-        background_color=sv.Color.BLACK,
-    )
+    font_scale = 0.5
+    font_thickness = 1
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    text_size = cv2.getTextSize(current_time, font, font_scale, font_thickness)[0]
+    padding = 5
+
+    anchor_x = anchor_x or 50 + padding
+    anchor_y = anchor_y or 50 + padding
+    
+    top = max(0, anchor_y - text_size[1] - padding)
+    bottom = min(height, anchor_y + padding)
+    left = max(0, anchor_x - padding)
+    right = min(width, anchor_x + text_size[0] + padding)
+
+    sub_frame = frame[top:bottom, left:right]
+    black_rect = np.ones(sub_frame.shape, dtype=np.uint8) * 10
+
+    res = cv2.addWeighted(sub_frame, 0.5, black_rect, 0.5, 1.0)
+    frame[top:bottom, left:right] = res
+
+    cv2.putText(frame, current_time, (anchor_x, anchor_y), font, font_scale, (255, 255, 255), font_thickness)
     return frame
