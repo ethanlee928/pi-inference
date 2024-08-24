@@ -25,9 +25,10 @@ class PipelineFactory:
 
         for prefix, pipeline_class in pipeline_classes.items():
             if output.startswith(prefix):
-                logger.info("Creating %s Pipeline", pipeline_class.__name__)
+                logger.info("Creating %s", pipeline_class.__name__)
                 pipeline = pipeline_class()
                 pipeline.create(output, options)
+                logger.info("Creating %s [DONE]", pipeline_class.__name__)
                 return pipeline
 
         raise NotImplementedError(f"Output {output} not supported")

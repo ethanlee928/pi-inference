@@ -77,6 +77,7 @@ class UriSrcPipeline(AppSinkPipeline):
 class V4l2Pipeline(AppSinkPipeline):
     @override
     def create(self, resource_uri: str, options: dict):
+        device = resource_uri.replace("v4l2://", "")
         elements = []
         width = options.get("input-width") or options.get("width") or 1280
         height = options.get("input-height") or options.get("height") or 720
@@ -92,7 +93,7 @@ class V4l2Pipeline(AppSinkPipeline):
         converter = make_element("videoconvert")
         capsfilter = make_element("capsfilter")
         sink = make_element("appsink")
-        source.set_property("device", resource_uri)
+        source.set_property("device", device)
         caps = Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1")
         capsfilter.set_property("caps", caps)
         sink.set_property("emit-signals", True)

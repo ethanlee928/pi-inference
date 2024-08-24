@@ -19,7 +19,7 @@ sudo apt-get install graphviz
 sudo apt install libcairo2-dev libxt-dev libgirepository1.0-dev
 
 # For RTSP Server
-sudo apt-get install libgstrtsserver-1.0-dev gstreamer1.0-rtsp
+sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstrtspserver-1.0-dev gstreamer1.0-rtsp
 
 # v4l2-ctl
 sudo apt-get install v4l-utils
