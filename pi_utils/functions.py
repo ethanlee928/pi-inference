@@ -205,19 +205,6 @@ class FPSMonitor:
         Args:
             sample_size (int): The maximum number of observations for latency
                 benchmarking.
-
-        Examples:
-            ```python
-            import supervision as sv
-
-            frames_generator = sv.get_video_frames_generator(source_path=<SOURCE_FILE_PATH>)
-            fps_monitor = sv.FPSMonitor()
-
-            for frame in frames_generator:
-                # your processing code here
-                fps_monitor.tick()
-                fps = fps_monitor.fps
-            ```
         """
         self.all_timestamps = deque(maxlen=sample_size)
 

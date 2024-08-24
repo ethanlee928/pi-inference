@@ -23,7 +23,6 @@ setuptools.setup(
     install_requires=[
         "pycairo",
         "PyGObject",
-        "supervision",
         "numpy",
         "opencv-python",
         "typing-extensions",

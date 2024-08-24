@@ -4,7 +4,6 @@ import sys
 import time
 
 import gi
-import supervision as sv
 
 from pi_utils import VideoOutput, VideoSource
 from pi_utils import functions as f
@@ -25,7 +24,7 @@ def extract_optional_args(args: list):
 
 def main(args, options):
     last_update = time.time()
-    fps_monitor = sv.FPSMonitor()
+    fps_monitor = f.FPSMonitor()
 
     video_source = VideoSource(args.input, options=options)
     video_output = VideoOutput(args.output, options=options)

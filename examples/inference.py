@@ -3,7 +3,6 @@ import logging
 import sys
 import time
 
-import cv2
 import gi
 import numpy as np
 import supervision as sv
