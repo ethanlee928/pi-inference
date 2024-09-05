@@ -103,3 +103,36 @@ class V4l2Pipeline(AppSinkPipeline):
 
         add_elements(self.pipeline, elements)
         link_elements(elements)
+
+
+class LibcameraPipeline(AppSinkPipeline):
+    @override
+    def create(self, resource_uri: str, options: dict):
+        device = resource_uri.replace("csi://", "")
+        width = options.get("input-width") or options.get("width") or 1280
+        height = options.get("input-height") or options.get("height") or 720
+        framerate = options.get("framerate", 30)
+        source = make_element("libcamerasrc")
+        if device:
+            source.set_property("camera-name", device)
+
+        capsfilter_1 = make_element("capsfilter", name="capsfilter_1")
+        caps_1 = Gst.Caps.from_string(
+            f"video/x-raw,colorimetry=bt709,format=NV12,width={width},height={height},framerate={framerate}/1"
+        )
+        capsfilter_1.set_property("caps", caps_1)
+
+        videoconvert = make_element("videoconvert")
+
+        capsfilter_2 = make_element("capsfilter", name="capsfilter_2")
+        caps_2 = Gst.Caps.from_string(f"video/x-raw,format=RGB,width={width},height={height},framerate={framerate}/1")
+        capsfilter_2.set_property("caps", caps_2)
+
+        sink = make_element("appsink")
+        sink.set_property("emit-signals", True)
+        sink.set_property("sync", False)
+        sink.connect("new-sample", self.on_rgb_sample, None)
+
+        elements = [source, capsfilter_1, videoconvert, capsfilter_2, sink]
+        add_elements(self.pipeline, elements)
+        link_elements(elements)
