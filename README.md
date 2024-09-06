@@ -36,7 +36,7 @@ pip3 install -r requirements.txt
 Install the package using pip
 
 ```bash
-python3 -m venv .venv
+python3 -m venv --system-site-packages .venv
 source .venv/bin/activate
 
 pip3 install --upgrade pip
