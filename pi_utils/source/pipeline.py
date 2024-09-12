@@ -3,6 +3,8 @@ import threading
 
 import gi
 import numpy as np
+from libcamera import Transform, controls
+from picamera2 import MappedArray, Picamera2
 from typing_extensions import override
 
 gi.require_version("Gst", "1.0")
@@ -136,3 +138,42 @@ class LibcameraPipeline(AppSinkPipeline):
         elements = [source, capsfilter_1, videoconvert, capsfilter_2, sink]
         add_elements(self.pipeline, elements)
         link_elements(elements)
+
+
+class PiCameraPipeline:
+    def __init__(self):
+        self.last_frame = None
+        self.frame_available = threading.Event()
+        self.picam: Picamera2 = None
+
+    def on_request(self, request):
+        with MappedArray(request, "main") as m:
+            self.last_frame = m.array.copy()
+            self.frame_available.set()
+
+    def create(self, resource_uri: str, options: dict):
+        camera_number = resource_uri.replace("picam://", "")
+        format = "BGR888"  # Hardcoded for RGB array
+        width = options.get("input-width") or options.get("width") or 1280
+        height = options.get("input-height") or options.get("height") or 720
+        framerate = options.get("framerate", 30)
+        hflip, vflip = options.get("hflip", 0), options.get("vflip", 0)
+        auto_focus = options.get("auto-focus", 0)
+        self.picam = Picamera2(0 if camera_number == "" else int(camera_number))
+        transforma = Transform(vflip=vflip, hflip=hflip)
+        config = self.picam.create_video_configuration(
+            main={"size": (int(width), int(height)), "format": format}, transform=transforma
+        )
+        self.picam.configure(config)
+        if auto_focus:
+            self.picam.set_controls({"AfMode": controls.AfModeEnum.Continuous, "FrameRate": framerate})
+
+        self.picam.post_callback = self.on_request
+
+    def start(self):
+        logger.info("Starting %s", PiCameraPipeline.__name__)
+        self.picam.start()
+
+    def set_null(self):
+        logger.info("Stopping %s", PiCameraPipeline.__name__)
+        self.picam.stop()

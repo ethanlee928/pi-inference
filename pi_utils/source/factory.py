@@ -1,6 +1,12 @@
 import logging
 
-from .pipeline import AppSinkPipeline, LibcameraPipeline, UriSrcPipeline, V4l2Pipeline
+from .pipeline import (
+    AppSinkPipeline,
+    LibcameraPipeline,
+    PiCameraPipeline,
+    UriSrcPipeline,
+    V4l2Pipeline,
+)
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -14,6 +20,7 @@ class PipelineFactory:
             "rtsp://": UriSrcPipeline,
             "file://": UriSrcPipeline,
             "csi://": LibcameraPipeline,
+            "picam://": PiCameraPipeline,
         }
 
         for prefix, pipeline_class in pipeline_classes.items():
