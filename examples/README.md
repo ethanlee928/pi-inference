@@ -5,6 +5,7 @@
 |                              | Protocol  | Resource URI                    | Notes                                                   |
 | ---------------------------- | --------- | ------------------------------- | ------------------------------------------------------- |
 | [V4L2 camera](#v4l2-cameras) | `v4l2://` | `v4l2:///dev/video0`            | V4L2 device 0 (substitute other camera numbers for `0`) |
+| [CSI Camera](#csi-cameras)   | `csi://`  | `csi://<device-name>`           | Based on `libcamerasrc`                                 |
 | [Video file](#video-files)   | `file://` | `file://my_video.mp4`           | Supports loading MP4, MKV, AVI (see codecs below)       |
 | [RTSP stream](#rtsp)         | `rtsp://` | `rtsp://<ip>:<port>/<endpoint>` | Supports h264, h265 decoding                            |
 
@@ -23,6 +24,25 @@ USB Webcams (tested with Logitech `Brio100`, `C270`)
 
 ```bash
 python3 video-viewer.py /dev/video0 display://0
+```
+
+## CSI Cameras
+
+CSI Cameras (tested with Pi Camera Module 3 NoIR)
+
+```bash
+# Check camera name
+rpicam-hello --list
+# Example output
+Available cameras
+-----------------
+0 : imx708_noir [4608x2592 10-bit RGGB] (/base/axi/pcie@120000/rp1/i2c@88000/imx708@1a)
+    Modes: 'SRGGB10_CSI2P' : 1536x864 [120.13 fps - (768, 432)/3072x1728 crop]
+                             2304x1296 [56.03 fps - (0, 0)/4608x2592 crop]
+                             4608x2592 [14.35 fps - (0, 0)/4608x2592 crop]
+
+# Start the pipeline
+python3 video-viewer.py csi:///base/axi/pcie@120000/rp1/i2c@88000/imx708@1a display://0
 ```
 
 ## Video Files
