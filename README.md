@@ -1,4 +1,4 @@
-<img src="https://https://github.com/ethanlee928/pi-inference/raw/main/images/raspberries-inference.jpg" width="75%" alt="raspberries-inference">
+<img src="https://github.com/ethanlee928/pi-inference/raw/main/images/raspberries-inference.jpg" width="75%" alt="raspberries-inference">
 
 # pi-inference
 
