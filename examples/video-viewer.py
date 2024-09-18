@@ -5,8 +5,8 @@ import time
 
 import gi
 
-from pi_utils import VideoOutput, VideoSource
-from pi_utils import functions as f
+from pi_inference import VideoOutput, VideoSource
+from pi_inference import functions as f
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst

@@ -1,7 +1,7 @@
 .PHONY: style check_code_quality
 
 export PYTHONPATH = .
-check_dirs := pi_utils
+check_dirs := pi_inference
 
 style:
 	black --config styles/black.toml $(check_dirs)

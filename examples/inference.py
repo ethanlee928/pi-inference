@@ -8,8 +8,8 @@ import numpy as np
 import supervision as sv
 from ncnn.model_zoo import get_model
 
-from pi_utils import VideoOutput, VideoSource
-from pi_utils import functions as f
+from pi_inference import VideoOutput, VideoSource
+from pi_inference import functions as f
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst

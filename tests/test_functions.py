@@ -1,6 +1,6 @@
 import pytest
 
-import pi_utils.functions as functions
+import pi_inference.functions as functions
 
 
 def test_is_v4l2():
