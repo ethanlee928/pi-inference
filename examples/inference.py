@@ -3,19 +3,12 @@ import logging
 import sys
 import time
 
-import gi
 import numpy as np
 import supervision as sv
 from ncnn.model_zoo import get_model
 
 from pi_inference import VideoOutput, VideoSource
 from pi_inference import functions as f
-
-gi.require_version("Gst", "1.0")
-from gi.repository import Gst
-
-Gst.init(None)
-
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
