@@ -10,7 +10,7 @@ from typing_extensions import override
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst
 
-from ..common import Pipeline
+from ..common import GstPipeline, Pipeline
 from ..functions import add_elements, link_elements, make_element
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger.addHandler(logging.NullHandler())
 Gst.init(None)
 
 
-class AppSinkPipeline(Pipeline):
+class AppSinkPipeline(GstPipeline):
 
     def __init__(self):
         super().__init__(pipeline_name=AppSinkPipeline.__name__)
@@ -144,7 +144,7 @@ class LibcameraPipeline(AppSinkPipeline):
         link_elements(elements)
 
 
-class PiCameraPipeline:
+class PiCameraPipeline(Pipeline):
     def __init__(self):
         self.last_frame = None
         self.frame_available = threading.Event()
@@ -155,6 +155,7 @@ class PiCameraPipeline:
             self.last_frame = m.array.copy()
             self.frame_available.set()
 
+    @override
     def create(self, resource_uri: str, options: dict):
         camera_number = resource_uri.replace("picam://", "")
         format = "BGR888"  # Hardcoded for RGB array
@@ -171,14 +172,16 @@ class PiCameraPipeline:
         )
         self.picam.configure(config)
         if auto_focus:
-            self.picam.set_controls({"AfMode": controls.AfModeEnum.Continuous, "FrameRate": framerate})
+            self.picam.set_controls({"AfMode": controls.AfModeEnum.Continuous, "FrameRate": int(framerate)})
 
         self.picam.post_callback = self.on_request
 
+    @override
     def start(self):
         logger.info("Starting %s", PiCameraPipeline.__name__)
         self.picam.start()
 
-    def set_null(self):
+    @override
+    def terminate(self):
         logger.info("Stopping %s", PiCameraPipeline.__name__)
         self.picam.stop()

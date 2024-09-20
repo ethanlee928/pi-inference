@@ -16,7 +16,7 @@ class VideoSource:
         self.pipeline = PipelineFactory.make(input, options)
 
     def on_terminate(self):
-        self.pipeline.set_null()
+        self.pipeline.terminate()
 
     def capture(self, timeout: float = 100) -> Optional[np.ndarray]:
         if not self.initialized:

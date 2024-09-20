@@ -9,14 +9,14 @@ gi.require_version("Gst", "1.0")
 from gi.repository import Gst
 
 from .. import functions as f
-from ..common import Pipeline
+from ..common import GstPipeline
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 Gst.init(None)
 
 
-class AppSrcPipeline(Pipeline):
+class AppSrcPipeline(GstPipeline):
     def __init__(self) -> None:
         super().__init__(pipeline_name=AppSrcPipeline.__name__)
         self.appsrc = f.make_element("appsrc")

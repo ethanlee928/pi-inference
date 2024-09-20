@@ -15,7 +15,7 @@ class VideoOutput:
         self.pipeline = PipelineFactory.make(output, options)
 
     def on_terminate(self):
-        self.pipeline.set_null()
+        self.pipeline.terminate()
 
     def render(self, frame: np.ndarray):
         if not self.initialized:
