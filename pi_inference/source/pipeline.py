@@ -51,7 +51,11 @@ class AppSinkPipeline(Pipeline):
 class UriSrcPipeline(AppSinkPipeline):
     @staticmethod
     def pad_added_handler(decodebin, pad, converter):
-        if pad.link(converter.get_static_pad("sink")) != Gst.PadLinkReturn.OK:
+        converter_static_sink_pad = converter.get_static_pad("sink")
+        if converter_static_sink_pad.is_linked():
+            logger.info("Sink pad is already linked")
+            return
+        if pad.link(converter_static_sink_pad) != Gst.PadLinkReturn.OK:
             logger.error("Failed to link decodebin to converter")
             return Gst.FlowReturn.ERROR
 
@@ -162,7 +166,8 @@ class PiCameraPipeline:
         self.picam = Picamera2(0 if camera_number == "" else int(camera_number))
         transforma = Transform(vflip=vflip, hflip=hflip)
         config = self.picam.create_video_configuration(
-            main={"size": (int(width), int(height)), "format": format}, transform=transforma
+            main={"size": (int(width), int(height)), "format": format},
+            transform=transforma,
         )
         self.picam.configure(config)
         if auto_focus:
