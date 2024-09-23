@@ -1,7 +1,5 @@
 import logging
 import re
-import time
-from collections import deque
 from datetime import datetime
 from typing import Optional
 
@@ -193,42 +191,3 @@ def draw_clock(frame: np.ndarray, anchor_x: Optional[int] = None, anchor_y: Opti
 
     cv2.putText(frame, current_time, (anchor_x, anchor_y), font, font_scale, (255, 255, 255), font_thickness)
     return frame
-
-
-class FPSMonitor:
-    """
-    A class for monitoring frames per second (FPS) to benchmark latency.
-    """
-
-    def __init__(self, sample_size: int = 30):
-        """
-        Args:
-            sample_size (int): The maximum number of observations for latency
-                benchmarking.
-        """
-        self.all_timestamps = deque(maxlen=sample_size)
-
-    @property
-    def fps(self) -> float:
-        """
-        Computes and returns the average FPS based on the stored time stamps.
-
-        Returns:
-            float: The average FPS. Returns 0.0 if no time stamps are stored.
-        """
-        if not self.all_timestamps:
-            return 0.0
-        taken_time = self.all_timestamps[-1] - self.all_timestamps[0]
-        return (len(self.all_timestamps)) / taken_time if taken_time != 0 else 0.0
-
-    def tick(self) -> None:
-        """
-        Adds a new time stamp to the deque for FPS calculation.
-        """
-        self.all_timestamps.append(time.monotonic())
-
-    def reset(self) -> None:
-        """
-        Clears all the time stamps from the deque.
-        """
-        self.all_timestamps.clear()

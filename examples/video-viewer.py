@@ -3,6 +3,8 @@ import logging
 import sys
 import time
 
+import supervision as sv
+
 from pi_inference import VideoOutput, VideoSource
 from pi_inference import functions as f
 
@@ -16,7 +18,7 @@ def extract_optional_args(args: list):
 
 def main(args, options):
     last_update = time.time()
-    fps_monitor = f.FPSMonitor()
+    fps_monitor = sv.FPSMonitor()
 
     video_source = VideoSource(args.input, options=options)
     video_output = VideoOutput(args.output, options=options)
