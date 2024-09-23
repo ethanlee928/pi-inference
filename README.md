@@ -2,19 +2,71 @@
 
 # pi-inference
 
-Computer Vision Inference Pipeline for Raspberry Pi
+A Computer Vision Inference Pipeline for Raspberry Pi inspired by [Jetson Inference](https://github.com/dusty-nv/jetson-inference).
 
-## Dependencies
+The pipeline utilized `Gstreamer` and [`picamera2`](https://github.com/raspberrypi/picamera2) video pipeline, and [`ncnn`](https://github.com/Tencent/ncnn) for optimized inference.
 
-The pipeline is based on Gstreamer.
+## 🖥️ Install
 
-### Apt Packages
+The pipeline is based on Gstreamer v1.22.0.
 
 ```bash
 sudo scripts/install-packages.sh
 ```
 
-## Development
+Install the `pi-inference` package in a `Python>=3.8` environment.
+
+```bash
+pip install pi-inference
+```
+
+## 🚀 Quick Start
+
+Inference using USB camera with pretrained `YOLOv8s` model, and display on GUI window.
+
+```python
+import supervision as sv
+from ncnn.model_zoo import get_model
+
+from pi_inference import VideoOutput, VideoSource
+from pi_inference import functions as f
+
+video_source = VideoSource("v4l2:///dev/video0")
+video_output = VideoOutput("display://0")
+
+net = get_model(
+    "yolov8s",
+    target_size=640,
+    prob_threshold=0.25,
+    nms_threshold=0.45,
+    num_threads=4,
+    use_gpu=False,
+)
+box_annotator = sv.BoxAnnotator()
+labels_annotator = sv.LabelAnnotator()
+
+while True:
+    try:
+        frame = video_source.capture(timeout=300)
+        if frame is not None:
+            detections = f.from_ncnn(frame, net)
+            labels = [
+                f"{class_name} {confidence:.2f}"
+                for class_name, confidence in zip(detections["class_name"], detections.confidence)
+            ]
+            frame = box_annotator.annotate(scene=frame, detections=detections)
+            frame = labels_annotator.annotate(scene=frame, detections=detections, labels=labels)
+            video_output.render(frame)
+    except KeyboardInterrupt:
+        break
+
+video_source.on_terminate()
+video_output.on_terminate()
+```
+
+Find out more in [`examples`](examples).
+
+## ⛏️ Development
 
 Install the package using pip
 
