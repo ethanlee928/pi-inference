@@ -6,6 +6,7 @@ from typing import Optional
 import cv2
 import gi
 import numpy as np
+import supervision as sv
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GstRtspServer", "1.0")
@@ -191,3 +192,22 @@ def draw_clock(frame: np.ndarray, anchor_x: Optional[int] = None, anchor_y: Opti
 
     cv2.putText(frame, current_time, (anchor_x, anchor_y), font, font_scale, (255, 255, 255), font_thickness)
     return frame
+
+
+def from_ncnn(frame: np.ndarray, net) -> sv.Detections:
+    objects = net(frame)
+    xyxy = []
+    confidence = []
+    class_id = []
+    for obj in objects:
+        x, y, w, h = obj.rect.x, obj.rect.y, obj.rect.w, obj.rect.h
+        xyxy.append([x, y, x + w, y + h])
+        confidence.append(obj.prob)
+        class_id.append(int(obj.label))
+    detections = (
+        sv.Detections(xyxy=np.array(xyxy), confidence=np.array(confidence), class_id=np.array(class_id))
+        if len(objects) > 0
+        else sv.Detections.empty()
+    )
+    detections.data["class_name"] = [net.class_names[_id] for _id in class_id]
+    return detections
