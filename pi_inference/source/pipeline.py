@@ -1,10 +1,28 @@
+import importlib
 import logging
 import threading
 
 import gi
 import numpy as np
-from libcamera import Transform, controls
-from picamera2 import MappedArray, Picamera2
+
+if not importlib.util.find_spec("libcamera"):
+    from unittest.mock import Mock
+
+    libcamera = Mock()
+    print("WARNING: Mock libcamera")
+else:
+    import libcamera as reallibcamera
+
+    libcamera = reallibcamera
+
+if not importlib.util.find_spec("picamera2"):
+    from unittest.mock import Mock
+
+    picamera2 = Mock()
+else:
+    import picamera2 as realpicamera2
+
+    picamera2 = realpicamera2
 from typing_extensions import override
 
 gi.require_version("Gst", "1.0")
@@ -151,7 +169,7 @@ class PiCameraPipeline(Pipeline):
         self.picam: Picamera2 = None
 
     def on_request(self, request):
-        with MappedArray(request, "main") as m:
+        with picamera2.MappedArray(request, "main") as m:
             self.last_frame = m.array.copy()
             self.frame_available.set()
 
@@ -164,15 +182,15 @@ class PiCameraPipeline(Pipeline):
         framerate = options.get("framerate", 30)
         hflip, vflip = options.get("hflip", 0), options.get("vflip", 0)
         auto_focus = options.get("auto-focus", 0)
-        self.picam = Picamera2(0 if camera_number == "" else int(camera_number))
-        transforma = Transform(vflip=vflip, hflip=hflip)
+        self.picam = picamera2.Picamera2(0 if camera_number == "" else int(camera_number))
+        transforma = libcamera.Transform(vflip=vflip, hflip=hflip)
         config = self.picam.create_video_configuration(
             main={"size": (int(width), int(height)), "format": format},
             transform=transforma,
         )
         self.picam.configure(config)
         if auto_focus:
-            self.picam.set_controls({"AfMode": controls.AfModeEnum.Continuous, "FrameRate": int(framerate)})
+            self.picam.set_controls({"AfMode": libcamera.controls.AfModeEnum.Continuous, "FrameRate": int(framerate)})
 
         self.picam.post_callback = self.on_request
 

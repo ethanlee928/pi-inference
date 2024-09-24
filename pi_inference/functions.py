@@ -1,7 +1,7 @@
 import logging
 import re
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import cv2
 import gi
@@ -31,7 +31,7 @@ def is_v4l2(input: str):
     return re.match(v4l2_pattern, input) is not None
 
 
-def extract_rtsp(input: str) -> tuple[str, str, str]:
+def extract_rtsp(input: str) -> Tuple[str, str, str]:
     """
     Extracts the IP address, port, and base from an RTSP URL.
 
@@ -68,24 +68,24 @@ def extract_tcp(input: str):
     return ip, port
 
 
-def add_elements(pipeline: Gst.Pipeline, elements: list[Gst.Element]):
+def add_elements(pipeline: Gst.Pipeline, elements: List[Gst.Element]):
     """
     Adds the given elements to the pipeline.
 
     Args:
         pipeline (Gst.Pipeline): The pipeline to add the elements to.
-        elements (list[Gst.Element]): The list of elements to add to the pipeline.
+        elements (List[Gst.Element]): The list of elements to add to the pipeline.
     """
     for element in elements:
         pipeline.add(element)
 
 
-def link_elements(elements: list[Gst.Element]):
+def link_elements(elements: List[Gst.Element]):
     """
     Links a list of GStreamer elements together.
 
     Args:
-        elements (list[Gst.Element]): A list of GStreamer elements.
+        elements (List[Gst.Element]): A list of GStreamer elements.
 
     Returns:
         None
