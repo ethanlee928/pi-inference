@@ -25,14 +25,20 @@ pip install pi-inference
 Inference using USB camera with pretrained `YOLOv8s` model, and display on GUI window.
 
 ```python
+import logging
+import time
+
 import supervision as sv
 from ncnn.model_zoo import get_model
 
 from pi_inference import VideoOutput, VideoSource
 from pi_inference import functions as f
 
-video_source = VideoSource("v4l2:///dev/video0")
-video_output = VideoOutput("display://0")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
+
+video_source = VideoSource("v4l2:///dev/video0", {"codec": "mjpg"})
+video_output = VideoOutput("display://0", {})
 
 net = get_model(
     "yolov8s",
@@ -44,11 +50,15 @@ net = get_model(
 )
 box_annotator = sv.BoxAnnotator()
 labels_annotator = sv.LabelAnnotator()
+last_update = time.monotonic()
+fps_monitor = sv.FPSMonitor()
 
 while True:
     try:
         frame = video_source.capture(timeout=300)
+        now = time.monotonic()
         if frame is not None:
+            fps_monitor.tick()
             detections = f.from_ncnn(frame, net)
             labels = [
                 f"{class_name} {confidence:.2f}"
@@ -57,6 +67,10 @@ while True:
             frame = box_annotator.annotate(scene=frame, detections=detections)
             frame = labels_annotator.annotate(scene=frame, detections=detections, labels=labels)
             video_output.render(frame)
+            if now - last_update > 1:
+                last_update = now
+                logger.info("FPS: %.1f", fps_monitor.fps)
+
     except KeyboardInterrupt:
         break
 
@@ -71,9 +85,13 @@ Find out more in [`examples`](examples).
 Install the package using pip
 
 ```bash
+# For raspberrypi
 python3 -m venv --system-site-packages .venv
-source .venv/bin/activate
 
+# For others
+python3 -m venv .venv
+
+source .venv/bin/activate
 pip3 install --upgrade pip
 pip3 install -e ".[dev]"
 ```
