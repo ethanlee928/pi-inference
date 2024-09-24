@@ -5,24 +5,15 @@ import threading
 import gi
 import numpy as np
 
-if not importlib.util.find_spec("libcamera"):
+if not importlib.util.find_spec("libcamera") or not importlib.util.find_spec("picamera2"):
     from unittest.mock import Mock
 
     libcamera = Mock()
-    print("WARNING: Mock libcamera")
-else:
-    import libcamera as reallibcamera
-
-    libcamera = reallibcamera
-
-if not importlib.util.find_spec("picamera2"):
-    from unittest.mock import Mock
-
     picamera2 = Mock()
 else:
-    import picamera2 as realpicamera2
+    import libcamera
+    import picamera2
 
-    picamera2 = realpicamera2
 from typing_extensions import override
 
 gi.require_version("Gst", "1.0")
@@ -166,7 +157,7 @@ class PiCameraPipeline(Pipeline):
     def __init__(self):
         self.last_frame = None
         self.frame_available = threading.Event()
-        self.picam: Picamera2 = None
+        self.picam = None
 
     def on_request(self, request):
         with picamera2.MappedArray(request, "main") as m:
