@@ -166,14 +166,12 @@ def launch_rtsp_server(
     logger.warning("Exit RTSP Server MainLoop ...")
 
 
-def draw_clock(frame: np.ndarray, anchor_x: Optional[int] = None, anchor_y: Optional[int] = None):
+def draw_text(frame: np.ndarray, text: str, anchor_x: Optional[int] = None, anchor_y: Optional[int] = None):
     width, height = frame.shape[1], frame.shape[0]
-    current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-
     font_scale = 0.5
     font_thickness = 1
     font = cv2.FONT_HERSHEY_SIMPLEX
-    text_size = cv2.getTextSize(current_time, font, font_scale, font_thickness)[0]
+    text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
     padding = 5
 
     anchor_x = anchor_x or 50 + padding
@@ -189,9 +187,12 @@ def draw_clock(frame: np.ndarray, anchor_x: Optional[int] = None, anchor_y: Opti
 
     res = cv2.addWeighted(sub_frame, 0.5, black_rect, 0.5, 1.0)
     frame[top:bottom, left:right] = res
-
-    cv2.putText(frame, current_time, (anchor_x, anchor_y), font, font_scale, (255, 255, 255), font_thickness)
+    cv2.putText(frame, text, (anchor_x, anchor_y), font, font_scale, (255, 255, 255), font_thickness)
     return frame
+
+
+def draw_clock(frame: np.ndarray, anchor_x: Optional[int] = None, anchor_y: Optional[int] = None):
+    return draw_text(frame, datetime.now().strftime("%d/%m/%Y %H:%M:%S"), anchor_x, anchor_y)
 
 
 def from_ncnn(frame: np.ndarray, net) -> sv.Detections:
