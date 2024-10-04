@@ -99,12 +99,15 @@ class V4l2Pipeline(AppSinkPipeline):
         framerate = options.get("framerate", 30)
         source = make_element("v4l2src")
         elements.append(source)
-        if options.get("codec") is not None:
+        codec = options.get("codec")
+        if codec is None:
+            logger.info("Using YUYV")
+        elif str(codec).lower() == "mjpg":
             logger.info("Using MJPG")
             decoder = make_element("jpegdec")
             elements.append(decoder)
         else:
-            logger.info("Using YUYV")
+            raise NotImplementedError("v4l2 pipeline currently supports MJPG and YUYV only")
         converter = make_element("videoconvert")
         capsfilter = make_element("capsfilter")
         sink = make_element("appsink")
