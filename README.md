@@ -26,7 +26,6 @@ Inference using USB camera with pretrained `YOLOv8s` model, and display on GUI w
 
 ```python
 import logging
-import time
 
 import supervision as sv
 from ncnn.model_zoo import get_model
@@ -50,13 +49,11 @@ net = get_model(
 )
 box_annotator = sv.BoxAnnotator()
 labels_annotator = sv.LabelAnnotator()
-last_update = time.monotonic()
 fps_monitor = sv.FPSMonitor()
 
 while True:
     try:
         frame = video_source.capture(timeout=300)
-        now = time.monotonic()
         if frame is not None:
             fps_monitor.tick()
             detections = f.from_ncnn(frame, net)
@@ -66,10 +63,9 @@ while True:
             ]
             frame = box_annotator.annotate(scene=frame, detections=detections)
             frame = labels_annotator.annotate(scene=frame, detections=detections, labels=labels)
+            frame = f.draw_clock(frame)
+            frame = f.draw_text(frame, f"FPS: {fps_monitor.fps:.1f}", anchor_y=80)
             video_output.render(frame)
-            if now - last_update > 1:
-                last_update = now
-                logger.info("FPS: %.1f", fps_monitor.fps)
 
     except KeyboardInterrupt:
         break
