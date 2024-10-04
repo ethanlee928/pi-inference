@@ -4,7 +4,7 @@
 
 A Computer Vision Inference Pipeline for Raspberry Pi inspired by [Jetson Inference](https://github.com/dusty-nv/jetson-inference).
 
-The pipeline utilized `Gstreamer` and [`picamera2`](https://github.com/raspberrypi/picamera2) video pipeline, and [`ncnn`](https://github.com/Tencent/ncnn) for optimized inference.
+The pipeline utilized `Gstreamer` and [`picamera2`](https://github.com/raspberrypi/picamera2) for video pipeline, and [`ncnn`](https://github.com/Tencent/ncnn) for optimized inference.
 
 ## 🖥️ Install
 

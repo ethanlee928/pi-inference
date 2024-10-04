@@ -22,3 +22,9 @@ publish:
 
 run-tests:
 	python3 -m pytest tests/ -v
+
+publish:
+	python setup.py sdist bdist_wheel
+	twine upload -r testpypi dist/* --verbose
+	twine check dist/*
+	twine upload dist/* --verbose
